@@ -1,0 +1,61 @@
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+#
+# Author: Ivan Morgillo, <imorgillo [at] sanniolug [dot] org>
+
+# intelswitch 2008-02-22
+
+#!/bin/bash        
+
+function usage {
+          if [ -z "$1" ]; then 
+	      echo 
+              echo intelswitch by Ivan Morgillo
+	      echo Enable/Disable VGA external monitor with Intel 965
+	      echo
+	      echo Usage: $ intelswitch mode
+	      echo \"mode\" can be \"vga\" or \"lvds\"
+	      echo
+	      echo If your current configuration have no VGA 1680x1050@60 mode
+	      echo intelswitch creates it, when possible.
+              exit
+          fi
+}
+	  if [ "$1" = "vga" ]; then
+	      echo Tring to enable VGA...
+	      echo Checking if VGA 1680x1050@60 mode exists...
+
+	      xrandr -q | grep 1680x1050@60
+	      if [ "$?" = "0" ]; then
+		  echo Got it!
+		xrandr --output VGA --mode 1680x1050@60 --output LVDS --off
+		
+	      else
+		  #echo Mode not found. Create VGA 1680x1050@60? [y/n]
+		  #read MODEYN
+		  #if [ "$MODEYN" = "y" ]; then
+		      xrandr --newmode "1680x1050@60" 147.14 1680 1784 1968 2256 1050 1051 1054 1087 -hsync +vsync
+		      xrandr --addmode VGA 1680x1050@60
+		      xrandr --output VGA --mode 1680x1050@60 --output LVDS --off
+		  #else
+		  #    echo Quitting...
+		  #    exit
+		  #fi
+	      fi
+	  elif [ "$1" = "lvds" ]; then
+              echo Disable VGA
+              xrandr --output VGA --off --output LVDS --mode 1280x800
+	  else
+        	usage
+	      	exit
+	  fi
