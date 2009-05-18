@@ -13,9 +13,12 @@
 #
 # Author: Ivan Morgillo, <imorgillo [at] sanniolug [dot] org>
 
-# intelswitch 2008-02-22
+# intelswitch
 
 #!/bin/bash        
+
+LVDS_res=1280x800
+VGA_res=1680x1050
 
 function usage {
           if [ -z "$1" ]; then 
@@ -26,27 +29,27 @@ function usage {
 	      echo Usage: $ intelswitch mode
 	      echo \"mode\" can be \"vga\" or \"lvds\"
 	      echo
-	      echo If your current configuration have no VGA 1680x1050@60 mode
+	      echo If your current configuration have no VGA $VGA_res@60 mode
 	      echo intelswitch creates it, when possible.
               exit
           fi
 }
 	  if [ "$1" = "vga" ]; then
 	      echo Tring to enable VGA...
-	      echo Checking if VGA 1680x1050@60 mode exists...
+	      echo Checking if VGA $VGA_res@60 mode exists...
 
-	      xrandr -q | grep 1680x1050@60
+	      xrandr -q | grep $VGA_res@60
 	      if [ "$?" = "0" ]; then
 		  echo Got it!
-		xrandr --output VGA --mode 1680x1050@60 --output LVDS --off
+		xrandr --output VGA --mode $VGA_res@60 --output LVDS --off
 		
 	      else
 		  #echo Mode not found. Create VGA 1680x1050@60? [y/n]
 		  #read MODEYN
 		  #if [ "$MODEYN" = "y" ]; then
-		      xrandr --newmode "1680x1050@60" 147.14 1680 1784 1968 2256 1050 1051 1054 1087 -hsync +vsync
-		      xrandr --addmode VGA 1680x1050@60
-		      xrandr --output VGA --mode 1680x1050@60 --output LVDS --off
+		      xrandr --newmode "$VGA_res@60" 146.25  1680 1784 1960 2240  1050 1053 1059 1089 -hsync +vsync
+		      xrandr --addmode VGA $VGA_res@60
+		      xrandr --output VGA --mode $VGA_res@60 --output LVDS --off
 		  #else
 		  #    echo Quitting...
 		  #    exit
@@ -55,7 +58,9 @@ function usage {
 	  elif [ "$1" = "lvds" ]; then
               echo Disable VGA
               xrandr --output VGA --off --output LVDS --mode 1280x800
+              xrandr --output VGA --off --output LVDS --mode $LVDS_res
 	  else
         	usage
 	      	exit
 	  fi
+
