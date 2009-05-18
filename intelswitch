@@ -31,9 +31,36 @@ function usage {
 	      echo
 	      echo If your current configuration have no VGA $VGA_res@60 mode
 	      echo intelswitch creates it, when possible.
+	      echo
+	      echo If you want to create a new mode, simply use:
+	      echo $ intelswitch --newmode
               exit
           fi
+
 }
+
+function newmode {
+    if [ -e /usr/bin/cvt ]; then
+    echo "You can now create a new mode for you display."
+    echo "Enter values you want."
+    echo "For example, if you want 1680x1050 @ 60 Hz resolution: 1680 1050 60"
+    read X Y refresh
+    echo "You asked for a: \"$X x $Y @ $refresh Hz\" resolution"
+    cvt $X $Y $refresh | grep Modeline > res
+    #cvt=`awk 'END {print NF}' res`
+    #echo $cvt
+    temp=`awk '{print $3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13}' res`
+    mode=\"$X\x$Y\@$refresh\"" "$temp
+    echo $mode
+    xrandr --newmode $mode
+    xrandr --addmode VGA $X\x$Y\@$refresh
+    xrandr -q
+    else
+	echo Cannot find cvt. Use your package manager to install it.
+	exit
+    fi
+}
+
 	  if [ "$1" = "vga" ]; then
 	      echo Tring to enable VGA...
 	      echo Checking if VGA $VGA_res@60 mode exists...
@@ -57,8 +84,9 @@ function usage {
 	      fi
 	  elif [ "$1" = "lvds" ]; then
               echo Disable VGA
-              xrandr --output VGA --off --output LVDS --mode 1280x800
               xrandr --output VGA --off --output LVDS --mode $LVDS_res
+	  elif  [ "$1" = "--newmode" ]; then
+	      newmode
 	  else
         	usage
 	      	exit
