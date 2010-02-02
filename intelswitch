@@ -61,34 +61,49 @@ function newmode {
     fi
 }
 
-	  if [ "$1" = "vga" ]; then
-	      echo Tring to enable VGA...
-	      echo Checking if VGA $VGA_res@60 mode exists...
+function toggle {
+    currentMode=`xrandr | grep current | awk '{print $8}'`
+    if [ "$currentMode" = "1680" ]; then
+	setLVDS
+    else
+	setVGA
+    fi
+}
 
-	      xrandr -q | grep $VGA_res@60
-	      if [ "$?" = "0" ]; then
-		  echo Got it!
-		xrandr --output VGA --mode $VGA_res@60 --output LVDS --off
-		
-	      else
-		  #echo Mode not found. Create VGA 1680x1050@60? [y/n]
-		  #read MODEYN
-		  #if [ "$MODEYN" = "y" ]; then
-		      xrandr --newmode "$VGA_res@60" 146.25  1680 1784 1960 2240  1050 1053 1059 1089 -hsync +vsync
-		      xrandr --addmode VGA $VGA_res@60
-		      xrandr --output VGA --mode $VGA_res@60 --output LVDS --off
-		  #else
-		  #    echo Quitting...
-		  #    exit
-		  #fi
-	      fi
-	  elif [ "$1" = "lvds" ]; then
-              echo Disable VGA
-              xrandr --output VGA --off --output LVDS --mode $LVDS_res
-	  elif  [ "$1" = "--newmode" ]; then
-	      newmode
-	  else
-        	usage
-	      	exit
-	  fi
+function setVGA {
+    echo Tring to enable VGA...
+    echo Checking if VGA $VGA_res@60 mode exists...
+    
+    xrandr -q | grep $VGA_res@60
+    if [ "$?" = "0" ]; then
+	echo Got it!
+	xrandr --output VGA --mode $VGA_res@60 --output LVDS --off
+	xscreensaver -no-splash	&
+    else
+	echo  Mode not found. Creating VGA 1680x1050@60 mode.
+	xrandr --newmode "$VGA_res@60" 146.25  1680 1784 1960 2240  1050 1053 1059 1089 -hsync +vsync
+	xrandr --addmode VGA $VGA_res@60
+	xrandr --output VGA --mode $VGA_res@60 --output LVDS --off
+	xscreensaver -no-splash &
+    fi
+}
+
+function setLVDS {
+     echo Disable VGA
+    xrandr --output VGA --off --output LVDS --mode $LVDS_res
+    xscreensaver -no-splash &
+}
+
+if  [ "$1" = "--newmode" ]; then
+    newmode
+elif  [ "$1" = "toggle" ]; then
+    toggle
+elif  [ "$1" = "vga" ]; then
+    setVGA
+elif  [ "$1" = "lvds" ]; then
+    setLVDS
+else
+    usage
+    exit
+fi
 
