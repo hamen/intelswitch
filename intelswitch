@@ -78,20 +78,41 @@ function setVGA {
     if [ "$?" = "0" ]; then
 	echo Got it!
 	xrandr --output VGA --mode $VGA_res@60 --output LVDS --off
-	xscreensaver -no-splash	&
+
+	ps aux | grep xscreensaver | grep -v grep > /dev/null
+	GREPEXIT=`echo $?`
+	if [ $GREPEXIT = 1 ]; then
+	    xscreensaver -no-splash &
+	else
+	    echo xscreensaver already running
+	fi
     else
 	echo  Mode not found. Creating VGA 1680x1050@60 mode.
 	xrandr --newmode "$VGA_res@60" 146.25  1680 1784 1960 2240  1050 1053 1059 1089 -hsync +vsync
 	xrandr --addmode VGA $VGA_res@60
 	xrandr --output VGA --mode $VGA_res@60 --output LVDS --off
-	xscreensaver -no-splash &
+
+	ps aux | grep xscreensaver | grep -v grep
+	GREPEXIT=`echo $?`
+	if [ $GREPEXIT = 1 ]; then
+	    xscreensaver -no-splash &
+	else
+	    echo xscreensaver already running
+	fi
     fi
 }
 
 function setLVDS {
-     echo Disable VGA
+    echo Disable VGA
     xrandr --output VGA --off --output LVDS --mode $LVDS_res
-    xscreensaver -no-splash &
+    
+    ps aux | grep xscreensaver | grep -v grep
+    GREPEXIT=`echo $?`
+    if [ $GREPEXIT = 1 ]; then
+	xscreensaver -no-splash &
+    else
+	echo xscreensaver already running
+    fi
 }
 
 if  [ "$1" = "--newmode" ]; then
