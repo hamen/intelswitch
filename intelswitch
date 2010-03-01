@@ -53,7 +53,7 @@ function newmode {
     mode=\"$X\x$Y\@$refresh\"" "$temp
     echo $mode
     xrandr --newmode $mode
-    xrandr --addmode VGA $X\x$Y\@$refresh
+    xrandr --addmode VGA1 $X\x$Y\@$refresh
     xrandr -q
     else
 	echo Cannot find cvt. Use your package manager to install it.
@@ -72,23 +72,23 @@ function toggle {
 
 function setVGA {
     echo Tring to enable VGA...
-    echo Checking if VGA $VGA_res@60 mode exists...
+    echo Checking if VGA1 $VGA_res@60 mode exists...
     
     xrandr -q | grep $VGA_res@60
     if [ "$?" = "0" ]; then
 	echo Got it!
-	xrandr --output VGA --mode $VGA_res@60 --output LVDS --off
+	xrandr --output VGA1 --mode $VGA_res --output LVDS1 --off
     else
 	echo  Mode not found. Creating VGA 1680x1050@60 mode.
 	xrandr --newmode "$VGA_res@60" 146.25  1680 1784 1960 2240  1050 1053 1059 1089 -hsync +vsync
-	xrandr --addmode VGA $VGA_res@60
-	xrandr --output VGA --mode $VGA_res@60 --output LVDS --off
+	xrandr --addmode VGA1 $VGA_res
+	xrandr --output VGA1 --mode $VGA_res --output LVDS1 --off
     fi
 }
 
 function setLVDS {
     echo Disable VGA
-    xrandr --output VGA --off --output LVDS --mode $LVDS_res
+    xrandr --output VGA1 --off --output LVDS1 --mode $LVDS_res
 }
 
 if  [ "$1" = "--newmode" ]; then
